@@ -24,6 +24,7 @@ function PlotAircraftSim(time,aircraft_state_array,control_input_array,fig, col)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Assign Useful Names to Variables (x,y,z,phi,theta,etc...)
+
 x = aircraft_state_array(:,1); y = aircraft_state_array(:,2); 
 z = aircraft_state_array(:,3); phi = aircraft_state_array(:,4);
 theta = aircraft_state_array(:,5); psi = aircraft_state_array(:,6);
@@ -38,48 +39,64 @@ Mc = control_input_array(:,3); Nc = control_input_array(:,4);
 figure(fig(1)); % Figure 1 for A/C Inertial Positions
 hold on; grid on;
 sgtitle('Inertial Positon Components vs Time')
-subplot(3,1,1); plot(time,x,col(1)); ylabel('X-Position');
-subplot(3,1,2); plot(time,y,col(2)); ylabel('Y-Position');
-subplot(3,1,3); plot(time,z,col(3)); ylabel('Z-Position'); xlabel('Time');
+subplot(3,1,1); plot(time,x,col(1),LineWidth=1); 
+ylabel('X-Position (m)'); xlim([0,max(time)]);
+subplot(3,1,2); plot(time,y,col(2),LineWidth=1); 
+ylabel('Y-Position (m)'); xlim([0,max(time)]);
+subplot(3,1,3); plot(time,z,col(3),LineWidth=1); 
+ylabel('Z-Position (m)'); xlim([0,max(time)]); xlabel('Time (s)');
 
 figure(fig(2)); % Figure 2 for A/C Euler Angles
 hold on; grid on;
 sgtitle('3-2-1 Body Euler Angles vs Time')
-subplot(3,1,1); plot(time,phi,col(4)); ylabel('Roll Angle');
-subplot(3,1,2); plot(time,theta,col(5)); ylabel('Pitch Angle');
-subplot(3,1,3); plot(time,psi,col(6)); ylabel('Yaw Angle'); xlabel('Time');
+subplot(3,1,1); plot(time,phi,col(4),LineWidth=1); 
+ylabel('Roll Angle (rad)'); xlim([0,max(time)]);
+subplot(3,1,2); plot(time,theta,col(5),LineWidth=1); 
+ylabel('Pitch Angle (rad)'); xlim([0,max(time)]);
+subplot(3,1,3); plot(time,psi,col(6),LineWidth=1); 
+ylabel('Yaw Angle (rad)'); xlim([0,max(time)]); xlabel('Time (s)');
 
 figure(fig(3)); % Figure 3 for A/C Air Relative Velocity
 hold on; grid on;
 sgtitle('Air-Relative Velocity Components')
-subplot(3,1,1); plot(time,u,col(1)); ylabel('X-Velocity');
-subplot(3,1,2); plot(time,v,col(2)); ylabel('Y-Velocity');
-subplot(3,1,3); plot(time,w,col(3)); ylabel('Z-Velocity'); xlabel('Time');
+subplot(3,1,1); plot(time,u,col(1),LineWidth=1); 
+ylabel('X-Velocity (m/s)'); xlim([0,max(time)]);
+subplot(3,1,2); plot(time,v,col(2),LineWidth=1); 
+ylabel('Y-Velocity (m/s)'); xlim([0,max(time)]);
+subplot(3,1,3); plot(time,w,col(3),LineWidth=1); 
+ylabel('Z-Velocity (m/s)'); xlim([0,max(time)]); xlabel('Time (s)');
 
 figure(fig(4)); % Figure 4 for A/C Angular Rates
 hold on; grid on;
 sgtitle('3-2-1 Body Angular Rates')
-subplot(3,1,1); plot(time,p,col(4)); ylabel('Roll Rate');
-subplot(3,1,2); plot(time,q,col(5)); ylabel('Pitch Rate');
-subplot(3,1,3); plot(time,r,col(6)); ylabel('Yaw Rate'); xlabel('Time');
+subplot(3,1,1); plot(time,p,col(4),LineWidth=1); 
+ylabel('Roll Rate (rad/s)'); xlim([0,max(time)]);
+subplot(3,1,2); plot(time,q,col(5),LineWidth=1); 
+ylabel('Pitch Rate (rad/s)'); xlim([0,max(time)]);
+subplot(3,1,3); plot(time,r,col(6),LineWidth=1); 
+ylabel('Yaw Rate (rad/s)'); xlim([0,max(time)]); xlabel('Time (s)');
 
 %% Plotting Control Inputs
 
 figure(fig(5)); % Figure 5 for A/C Control Inputs
 hold on; grid on;
 sgtitle('Control Inputs')
-subplot(4,1,1); plot(time,Zc,col(3)); ylabel('Z-Force');
-subplot(4,1,2); plot(time,Lc,col(4)); ylabel('X-Moment');
-subplot(4,1,3); plot(time,Mc,col(5)); ylabel('Y-Moment');
-subplot(4,1,4); plot(time,Nc,col(6)); ylabel('Z-Moment'); xlabel('Time');
+subplot(4,1,1); plot(time,Zc,col(3),LineWidth=1); 
+ylabel('Z-Force'); xlim([0,max(time)]);
+subplot(4,1,2); plot(time,Lc,col(4),LineWidth=1); 
+ylabel('X-Moment'); xlim([0,max(time)]);
+subplot(4,1,3); plot(time,Mc,col(5),LineWidth=1); 
+ylabel('Y-Moment'); xlim([0,max(time)]);
+subplot(4,1,4); plot(time,Nc,col(6),LineWidth=1); 
+ylabel('Z-Moment'); xlim([0,max(time)]); xlabel('Time (s)');
 
 %% Plotting 3D Trajectory 
 
 figure(fig(6)); % Figure 6 for A/C 3D Trajectory
 hold on; grid on; view(3);
 title('3D Trajectory')
-plot3(x,y,-z,'k');
-plot3(x(1),y(1),-z(1),'ro'); 
-plot3(x(end),y(end),-z(end),'go')
+plot3(x,y,-z,'k',LineWidth=1); % 3D Trajectory
+plot3(x(1),y(1),-z(1),'go'); plot3(x(end),y(end),-z(end),'ro') % Markers
+xlabel('X-Positon (m)'); ylabel('Y-Position (m)'); zlabel('Altitude (m)')
 
 end
