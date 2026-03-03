@@ -1,22 +1,27 @@
-function var_dot = QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_forces)
-% for use by ode45 to simulate the full nonlinear equations of motion where: t is time; var is the 12 x
-% 1 aircraft state vector; g is the acceleration due to gravity; m is mass; I is the inertia matrix; d, km,
-% nu, and mu are the remaining quadrotor parameters; motor_forces = [f1; f2; f3; f4] is
-% the 4 x 1 vector of motor forces, and var_dot is the 12 x 1 derivative of the state vector. Include
-% attitude dynamics and kinematics using the Euler angle attitude representation. 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%  t: Time 
-%  var: 12x1 state vector   [ x, y, z, phi, theta, psi, u, v, w, p, q, r] 
-%  g: accel due to grav 
-%  m: Mass
-%  I: Inertia Matrix
-%  d: 
-%  km:
-%  nu:
-%  mu:
-%  Motor Forces: [f1; f2; f3; f4] is the 4 x 1 vector of motor forces
-%  var_dot: 12x1 derivative of the state vector
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Contributors: Cody Newton, Víctor Turpin Aguayo, Liz Thompson
+% Course number: ASEN 3801
+% File name: QuadrotorEOM
+% Created: 3/3/26
+
+function var_dot = QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_forces) 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Inputs:   t = Simulation time (s)
+%           var = 12x1 QR state vector [x,y,z,phi,theta,psi,u,v,w,p,q,r] 
+%           g = Acceleration due to gravity (m/s^2)
+%           m = QR Mass (kg)
+%           I = QR Inertia Matrix (kg*m^2)
+%           d = Radial distacne from CG to propeller (m)
+%           km = Control moment coefficient (N*m/(N))
+%           nu = Aerodynamic force coefficient (N/(m/s)^2)
+%           mu = Aerodynamics moment coefficient (N*m/(rad/s)^2)
+%           Motor Forces = 4 x 1 motor force vector [f1; f2; f3; f4]
+% 
+% Outputs:  var_dot: 12x1 derivative of the state vector
+%
+% Methodology: For use by ode45 to simulate nonlinear QR EOMs. Compute
+% derivative of each aircraft state using the QR EOMs.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 State.x=var(1);
 State.y=var(2);
 State.z=var(3);
