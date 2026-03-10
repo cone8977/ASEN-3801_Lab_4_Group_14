@@ -1,70 +1,73 @@
-function [var_dot, Control] = QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_forces)
-% for use by ode45 to simulate the full nonlinear equations of motion where: t is time; var is the 12 x
-% 1 aircraft state vector; g is the acceleration due to gravity; m is mass; I is the inertia matrix; d, km,
-% nu, and mu are the remaining quadrotor parameters; motor_forces = [f1; f2; f3; f4] is
-% the 4 x 1 vector of motor forces, and var_dot is the 12 x 1 derivative of the state vector. Include
-% attitude dynamics and kinematics using the Euler angle attitude representation. 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%  t: Time 
-%  var: 12x1 state vector   [ x, y, z, phi, theta, psi, u, v, w, p, q, r] 
-%  g: accel due to grav 
-%  m: Mass
-%  I: Inertia Matrix
-%  d: 
-%  km:
-%  nu:
-%  mu:
-%  Motor Forces: [f1; f2; f3; f4] is the 4 x 1 vector of motor forces
-%  var_dot: 12x1 derivative of the state vector
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-State.x=var(1);
-State.y=var(2);
-State.z=var(3);
-State.phi=var(4);
-State.theta=var(5);
-State.psi=var(6);
-State.u=var(7);
-State.v=var(8);
-State.w=var(9);
-State.p=var(10);
-State.q=var(11);
-State.r=var(12);
-%% Trig structure 
-% Psi
-Trig.cpsi=cos(State.psi);
-Trig.spsi=sin(State.psi);
-Trig.tpsi=tan(State.psi);
-% Theta
-Trig.ctheta=cos(State.theta);
-Trig.stheta=sin(State.theta);
-Trig.ttheta=tan(State.theta);
-% Phi
-Trig.cphi=cos(State.phi);
-Trig.sphi=sin(State.phi);
-Trig.tphi=tan(State.phi);
+% Contributors: Cody Newton, Victor Turpin, Liz Thompson
+% Course number: ASEN 3801
+% File name: QuadrotorEOM
+% Created: 3/3/26
 
-%% Inetria Struct
-In.x=I(1,1);
-In.y=I(2,2);
-In.z=I(3,3);
+function [var_dot, Control] = QuadrotorEOM(t,var,g,m,I,d,km,nu,mu,motor_forces) 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Inputs:   time = simulation time
+%           var = 12x1 state vector [x,y,z,phi,theta,psi,u,v,w,p,q,r] 
+%           g = acceleration due to gravity (m/s^2)
+%           m = QR mass (kg)
+%           I= QR inertia matrix (km*m^2)
+%           d = Radial distance from cg to propeller (m)
+%           km = Control moment coefficient (N*m/(N))
+%           nu = Aerodynamic force coefficient (N/(m/s)^2)
+%           mu = Aerodynamic moment coefficient (N*m/(rad/s)^2)
+%           Motor Forces = 4x1 array of motor forces [f1; f2; f3; f4]
+% 
+% Output:   var_dot: 12x1 derivative of the state vector
+%
+% Methodology: Using derivations from class, calculate the dotted state
+% vaiables given values for the previous step and control forces and
+% moments. This function will be used by ode45 to simulate the QR flight. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% Assign Useful Names to Variables (x,y,z,phi,theta,etc...)
 
-%% Control Struct
-control=[-1 -1 -1 -1; -d./sqrt(2) -d./sqrt(2) d./sqrt(2) d./sqrt(2); d./sqrt(2) -d./sqrt(2) -d./sqrt(2) d./sqrt(2); km -km km -km].*motor_forces;
-Control.Z=sum(control(1,:));
-Control.L=sum(control(2,:));
-Control.M=sum(control(3,:));
-Control.N=sum(control(4,:));
+State.x=var(1); State.y=var(2); State.z=var(3);             % Position
+State.phi=var(4); State.theta=var(5); State.psi=var(6);     % Attitude
+State.u=var(7); State.v=var(8); State.w=var(9);             % Velocity
+State.p=var(10); State.q=var(11); State.r=var(12);          % Angular Rate
 
-%% Aero Struct
-Force= -nu.*norm([State.u State.v State.w]).*[State.u; State.v; State.w];
-Moments=-mu.*norm([State.p State.q State.r]).*[State.p; State.q; State.r];
-Aero.X=Force(1);
-Aero.Y=Force(2);
-Aero.Z=Force(3);
-Aero.L=Moments(1);
-Aero.M=Moments(2);
-Aero.N=Moments(3);
+%% Set Up Euler Angle Structure 
+
+% Calculate Trig values of Psi
+Trig.cpsi = cos(State.psi); Trig.spsi = sin(State.psi);
+Trig.tpsi = tan(State.psi);
+
+% Calculate Trig values of Theta
+Trig.ctheta = cos(State.theta); Trig.stheta = sin(State.theta);
+Trig.ttheta = tan(State.theta);
+
+% Calculate Trig values of Phi
+Trig.cphi = cos(State.phi); Trig.sphi = sin(State.phi);
+Trig.tphi = tan(State.phi);
+
+%% Extracting Inertia Values
+
+In.x = I(1,1); In.y = I(2,2); In.z = I(3,3);
+
+%% Calcaulte Control Force/Moments
+
+control = [  -1,          -1,         -1,         -1      ; % Set Up Matrix 
+          -d./sqrt(2), -d./sqrt(2), d./sqrt(2), d./sqrt(2); 
+          d./sqrt(2), -d./sqrt(2), -d./sqrt(2), d./sqrt(2); 
+              km,         -km,          km,        -km    ].* motor_forces;
+
+% Allocate Control Force/Moment Values
+Control.Z=sum(control(1,:)); Control.L=sum(control(2,:));
+Control.M=sum(control(3,:)); Control.N=sum(control(4,:));
+
+%% Calcaulte Aerodynamic Force/Moments
+
+% Calculate Aerodynamic Forces/Moments
+Force = -nu.*norm([State.u State.v State.w]).*[State.u; State.v; State.w];
+Moments = -mu.*norm([State.p State.q State.r]).*[State.p; State.q; State.r];
+
+% Allocate Aerodynamic Force/Moment Values
+Aero.X=Force(1); Aero.Y=Force(2); Aero.Z=Force(3);
+Aero.L=Moments(1); Aero.M=Moments(2); Aero.N=Moments(3);
 
 %% X_dot, Y_dot, Z_dot
 Pos_dot=[Trig.ctheta.*Trig.cpsi, (Trig.sphi.*Trig.stheta.*Trig.cpsi)-(Trig.cphi.*Trig.spsi), (Trig.cphi.*Trig.stheta.*Trig.cpsi)-(Trig.sphi.*Trig.spsi); ...
@@ -116,6 +119,7 @@ R_dot = Omega_dot(3);
 
 %% Compilation
 var_dot=[ X_dot; Y_dot; Z_dot; Phi_dot; Theta_dot; Psi_dot; U_dot; V_dot; W_dot; P_dot; Q_dot; R_dot];
+
 
 
 end
