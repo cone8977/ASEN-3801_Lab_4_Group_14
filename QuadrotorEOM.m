@@ -1,4 +1,4 @@
-function var_dot = QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_forces)
+function [var_dot, Control] = QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_forces)
 % for use by ode45 to simulate the full nonlinear equations of motion where: t is time; var is the 12 x
 % 1 aircraft state vector; g is the acceleration due to gravity; m is mass; I is the inertia matrix; d, km,
 % nu, and mu are the remaining quadrotor parameters; motor_forces = [f1; f2; f3; f4] is
@@ -65,6 +65,7 @@ Aero.Z=Force(3);
 Aero.L=Moments(1);
 Aero.M=Moments(2);
 Aero.N=Moments(3);
+
 %% X_dot, Y_dot, Z_dot
 Pos_dot=[Trig.ctheta.*Trig.cpsi, (Trig.sphi.*Trig.stheta.*Trig.cpsi)-(Trig.cphi.*Trig.spsi), (Trig.cphi.*Trig.stheta.*Trig.cpsi)-(Trig.sphi.*Trig.spsi); ...
                      Trig.ctheta.*Trig.spsi, (Trig.sphi.*Trig.stheta.*Trig.spsi)+(Trig.cphi.*Trig.cpsi), (Trig.cphi.*Trig.stheta.*Trig.spsi)-(Trig.sphi.*Trig.cpsi); ...
@@ -96,7 +97,7 @@ W_dot = v_dot(3);
 
 
 %% P_dot, Q_dot, R_dot
-Omega_dot= [ ((In.y-In.z)./In.x).*State.q.*State.r;((In.z-In.x)./In.y).*State.p.*State.r;((In.x-In.y)./In.z).*State.q.*State.q]+[(1/In.x).*Aero.L; (1/In.y).*Aero.M; (1/In.z).*Aero.N]+[(1/In.x).*Control.L; (1/In.y).*Control.M; (1/In.z).*Control.N];
+Omega_dot= [ ((In.y-In.z)./In.x).*State.q.*State.r;((In.z-In.x)./In.y).*State.p.*State.r;((In.x-In.y)./In.z).*State.q.*State.p]+[(1/In.x).*Aero.L; (1/In.y).*Aero.M; (1/In.z).*Aero.N]+[(1/In.x).*Control.L; (1/In.y).*Control.M; (1/In.z).*Control.N];
 
 P_dot = Omega_dot(1);
 Q_dot = Omega_dot(2);

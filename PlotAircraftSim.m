@@ -39,56 +39,56 @@ Mc = control_input_array(:,3); Nc = control_input_array(:,4);
 figure(fig(1)); % Figure 1 for A/C Inertial Positions
 hold on; grid on;
 sgtitle('Inertial Positon Components vs Time')
-subplot(3,1,1); plot(time,x,col(1),LineWidth=1); 
+subplot(3,1,1); plot(time,x,col(1),LineWidth=1); grid on;
 ylabel('X-Position (m)'); xlim([0,max(time)]);
-subplot(3,1,2); plot(time,y,col(2),LineWidth=1); 
+subplot(3,1,2); plot(time,y,col(2),LineWidth=1); grid on;
 ylabel('Y-Position (m)'); xlim([0,max(time)]);
-subplot(3,1,3); plot(time,z,col(3),LineWidth=1); 
+subplot(3,1,3); plot(time,z,col(3),LineWidth=1); grid on;
 ylabel('Z-Position (m)'); xlim([0,max(time)]); xlabel('Time (s)');
 
 figure(fig(2)); % Figure 2 for A/C Euler Angles
 hold on; grid on;
 sgtitle('3-2-1 Body Euler Angles vs Time')
-subplot(3,1,1); plot(time,phi,col(4),LineWidth=1); 
+subplot(3,1,1); plot(time,phi,col(4),LineWidth=1); grid on;
 ylabel('Roll Angle (rad)'); xlim([0,max(time)]);
-subplot(3,1,2); plot(time,theta,col(5),LineWidth=1); 
+subplot(3,1,2); plot(time,theta,col(5),LineWidth=1); grid on;
 ylabel('Pitch Angle (rad)'); xlim([0,max(time)]);
-subplot(3,1,3); plot(time,psi,col(6),LineWidth=1); 
+subplot(3,1,3); plot(time,psi,col(6),LineWidth=1); grid on;
 ylabel('Yaw Angle (rad)'); xlim([0,max(time)]); xlabel('Time (s)');
 
 figure(fig(3)); % Figure 3 for A/C Air Relative Velocity
 hold on; grid on;
 sgtitle('Air-Relative Velocity Components')
-subplot(3,1,1); plot(time,u,col(1),LineWidth=1); 
+subplot(3,1,1); plot(time,u,col(1),LineWidth=1); grid on;
 ylabel('X-Velocity (m/s)'); xlim([0,max(time)]);
-subplot(3,1,2); plot(time,v,col(2),LineWidth=1); 
+subplot(3,1,2); plot(time,v,col(2),LineWidth=1); grid on;
 ylabel('Y-Velocity (m/s)'); xlim([0,max(time)]);
-subplot(3,1,3); plot(time,w,col(3),LineWidth=1); 
+subplot(3,1,3); plot(time,w,col(3),LineWidth=1); grid on;
 ylabel('Z-Velocity (m/s)'); xlim([0,max(time)]); xlabel('Time (s)');
 
 figure(fig(4)); % Figure 4 for A/C Angular Rates
 hold on; grid on;
 sgtitle('3-2-1 Body Angular Rates')
-subplot(3,1,1); plot(time,p,col(4),LineWidth=1); 
+subplot(3,1,1); plot(time,p,col(4),LineWidth=1); grid on;
 ylabel('Roll Rate (rad/s)'); xlim([0,max(time)]);
-subplot(3,1,2); plot(time,q,col(5),LineWidth=1); 
+subplot(3,1,2); plot(time,q,col(5),LineWidth=1);  grid on;
 ylabel('Pitch Rate (rad/s)'); xlim([0,max(time)]);
-subplot(3,1,3); plot(time,r,col(6),LineWidth=1); 
+subplot(3,1,3); plot(time,r,col(6),LineWidth=1); grid on;
 ylabel('Yaw Rate (rad/s)'); xlim([0,max(time)]); xlabel('Time (s)');
 
 %% Plotting Control Inputs
 
 figure(fig(5)); % Figure 5 for A/C Control Inputs
-hold on; grid on;
+hold on;
 sgtitle('Control Inputs')
 subplot(4,1,1); plot(time,Zc,col(3),LineWidth=1); 
-ylabel('Z-Force'); xlim([0,max(time)]);
+ylabel('Z-Force'); xlim([0,max(time)]); grid on;
 subplot(4,1,2); plot(time,Lc,col(4),LineWidth=1); 
-ylabel('X-Moment'); xlim([0,max(time)]);
+ylabel('X-Moment'); xlim([0,max(time)]); grid on;
 subplot(4,1,3); plot(time,Mc,col(5),LineWidth=1); 
-ylabel('Y-Moment'); xlim([0,max(time)]);
+ylabel('Y-Moment'); xlim([0,max(time)]); grid on;
 subplot(4,1,4); plot(time,Nc,col(6),LineWidth=1); 
-ylabel('Z-Moment'); xlim([0,max(time)]); xlabel('Time (s)');
+ylabel('Z-Moment'); xlim([0,max(time)]); xlabel('Time (s)'); grid on;
 
 %% Plotting 3D Trajectory 
 
