@@ -9,7 +9,7 @@ function [var_dot, Control] = QuadrotorEOM(t,var,g,m,I,d,km,nu,mu,motor_forces)
 %           var = 12x1 state vector [x,y,z,phi,theta,psi,u,v,w,p,q,r] 
 %           g = acceleration due to gravity (m/s^2)
 %           m = QR mass (kg)
-%           I= QR inertia matrix (km*m^2)
+%           I = QR inertia matrix (km*m^2)
 %           d = Radial distance from cg to propeller (m)
 %           km = Control moment coefficient (N*m/(N))
 %           nu = Aerodynamic force coefficient (N/(m/s)^2)
@@ -144,3 +144,4 @@ P_dot = Omega_dot(1); Q_dot = Omega_dot(2); R_dot = Omega_dot(3);
 var_dot=[ X_dot; Y_dot; Z_dot; Phi_dot; Theta_dot; Psi_dot; U_dot; V_dot; W_dot; P_dot; Q_dot; R_dot];
 
 end
+
