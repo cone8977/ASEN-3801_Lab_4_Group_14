@@ -50,6 +50,7 @@ In.x = I(1,1); In.y = I(2,2); In.z = I(3,3);
 
 %% Calcaulte Control Force/Moments
 
+% Calculate Control Forces/Moments
 control = [  -1,          -1,         -1,         -1      ; % Set Up Matrix 
           -d./sqrt(2), -d./sqrt(2), d./sqrt(2), d./sqrt(2); 
           d./sqrt(2), -d./sqrt(2), -d./sqrt(2), d./sqrt(2); 
@@ -66,45 +67,66 @@ Force = -nu.*norm([State.u State.v State.w]).*[State.u; State.v; State.w];
 Moments = -mu.*norm([State.p State.q State.r]).*[State.p; State.q; State.r];
 
 % Allocate Aerodynamic Force/Moment Values
-Aero.X=Force(1); Aero.Y=Force(2); Aero.Z=Force(3);
-Aero.L=Moments(1); Aero.M=Moments(2); Aero.N=Moments(3);
+Aero.X = Force(1); Aero.Y = Force(2); Aero.Z = Force(3);
+Aero.L = Moments(1); Aero.M = Moments(2); Aero.N = Moments(3);
 
 %% X_dot, Y_dot, Z_dot
-Pos_dot=[Trig.ctheta.*Trig.cpsi, (Trig.sphi.*Trig.stheta.*Trig.cpsi)-(Trig.cphi.*Trig.spsi), (Trig.cphi.*Trig.stheta.*Trig.cpsi)-(Trig.sphi.*Trig.spsi); ...
-                     Trig.ctheta.*Trig.spsi, (Trig.sphi.*Trig.stheta.*Trig.spsi)+(Trig.cphi.*Trig.cpsi), (Trig.cphi.*Trig.stheta.*Trig.spsi)-(Trig.sphi.*Trig.cpsi); ...
-                     -Trig.stheta, Trig.ctheta.*Trig.sphi, Trig.ctheta.*Trig.cphi] * [State.u;State.v;State.w];
 
+% Calculate d/dt[Inertial Position]
+Pos_dot=[Trig.ctheta.*Trig.cpsi,... % Calculate B to E DCM
+    (Trig.sphi.*Trig.stheta.*Trig.cpsi)-(Trig.cphi.*Trig.spsi),...
+    (Trig.cphi.*Trig.stheta.*Trig.cpsi)-(Trig.sphi.*Trig.spsi);...
+    (Trig.ctheta.*Trig.spsi),...
+    (Trig.sphi.*Trig.stheta.*Trig.spsi)+(Trig.cphi.*Trig.cpsi),...
+    (Trig.cphi.*Trig.stheta.*Trig.spsi)-(Trig.sphi.*Trig.cpsi);...
+    (-Trig.stheta),...
+    (Trig.ctheta.*Trig.sphi),...
+    (Trig.ctheta.*Trig.cphi)] * [State.u;State.v;State.w];
+
+% Allocate d/dt[Inertial Position]
 X_dot = Pos_dot(1);
 Y_dot = Pos_dot(2);
 Z_dot = Pos_dot(3);
 
 
 %% Phi_dot, Theta_dot, Psi_dot
-Angle_dot=[ 1, Trig.sphi.*Trig.ttheta, Trig.cphi.*Trig.ttheta;
-            0, Trig.cphi, -Trig.sphi
-            0, Trig.sphi./Trig.ctheta, Trig.cphi./Trig.ctheta]*[State.p;State.q;State.r;]; 
+
+% Calculate d/dt[Attiude]
+Angle_dot = [1, Trig.sphi.*Trig.ttheta, Trig.cphi.*Trig.ttheta;
+             0,        Trig.cphi,             -Trig.sphi      ;
+             0, Trig.sphi./Trig.ctheta, Trig.cphi./Trig.ctheta]...
+            *[State.p;State.q;State.r;]; 
 
 
-Phi_dot = Angle_dot(1);
-Theta_dot = Angle_dot(2);
-Psi_dot = Angle_dot(3);
-
+% Allocate d/dt[Attiude]
+Phi_dot = Angle_dot(1); Theta_dot = Angle_dot(2); Psi_dot = Angle_dot(3);
 
 %% U_dot, V_dot, W_dot
 
-v_dot= cross([State.u,State.v,State.w],[State.p,State.q,State.r])' + g.*[-Trig.stheta;Trig.ctheta.*Trig.sphi ;Trig.ctheta.*Trig.cphi] +[Aero.X; Aero.Y; Aero.Z]./m+[0;0;Control.Z]./m;
+% Calcualte d/dt[Velocity]
+v_dot = cross([State.u,State.v,State.w],[State.p,State.q,State.r])' ...
+    + g.*[-Trig.stheta;Trig.ctheta.*Trig.sphi ;Trig.ctheta.*Trig.cphi] ...
+    +[Aero.X; Aero.Y; Aero.Z]./m+[0;0;Control.Z]./m;
 
-U_dot = v_dot(1);
-V_dot = v_dot(2);
-W_dot = v_dot(3);
+% ALlocate d/dt[Velocity]
+U_dot = v_dot(1); V_dot = v_dot(2); W_dot = v_dot(3);
 
 
 %% P_dot, Q_dot, R_dot
-Omega_dot= [ ((In.y-In.z)./In.x).*State.q.*State.r;((In.z-In.x)./In.y).*State.p.*State.r;((In.x-In.y)./In.z).*State.q.*State.p]+[(1/In.x).*Aero.L; (1/In.y).*Aero.M; (1/In.z).*Aero.N]+[(1/In.x).*Control.L; (1/In.y).*Control.M; (1/In.z).*Control.N];
 
-P_dot = Omega_dot(1);
-Q_dot = Omega_dot(2);
-R_dot = Omega_dot(3);
+% Calculate d/dt[Angular Rate]
+Omega_dot = [ ((In.y-In.z)./In.x).*State.q.*State.r ;...
+              ((In.z-In.x)./In.y).*State.p.*State.r ;...
+              ((In.x-In.y)./In.z).*State.q.*State.p ]...
+           +[ (1/In.x).*Aero.L ;...
+              (1/In.y).*Aero.M ;...
+              (1/In.z).*Aero.N ]...
+           +[ (1/In.x).*Control.L ;...
+              (1/In.y).*Control.M ;...
+              (1/In.z).*Control.N];
+
+% Allocate d/dt[Angular Rate]
+P_dot = Omega_dot(1); Q_dot = Omega_dot(2); R_dot = Omega_dot(3);
 
 % %% Ground Collison
 % if(State.z>=0)        
@@ -117,9 +139,8 @@ R_dot = Omega_dot(3);
 %     R_dot=0;
 % end
 
-%% Compilation
+%% Compile All Dotted States
+
 var_dot=[ X_dot; Y_dot; Z_dot; Phi_dot; Theta_dot; Psi_dot; U_dot; V_dot; W_dot; P_dot; Q_dot; R_dot];
-
-
 
 end
