@@ -1,6 +1,7 @@
 clc; clear; close all;
 
 
+%%%%%%
 
 % Task 2 Question 5
 
@@ -133,6 +134,13 @@ end
 
 
 
+
+
+
+
+
+
+
 %% Constants/Varibales 
 
 g = 9.81; % Acceleration due to gravity (m/s^2)
@@ -146,10 +154,12 @@ nu = 1*10^(-3);
 mu = 2*10^(-6);
 
 t = [0, 10]; % Simulate for 0-10 seconds
-var=[0;0;0;         % Inertial Position [x,y,z]
-     0;0;0;         % Inertial Attitude
-     0;0;0;         % Body Velocities
-     0;0;0.1];      % Body Angular Acceleration
+
+var=[10; 15 ;-20;
+     0 ;0 ; 0; 
+     0 ; 0 ;0;
+     0 ;0 ;0.1];
+
 motor_forces = [m*g/4; m*g/4; m*g/4; m*g/4]; % For hover
 
 %% Non-Linearized 
@@ -184,4 +194,6 @@ fig = 1:6; % Set figure numbers
 col = ['r';'r';'r';'b';'b';'b';'k']; % Set colors for plotting
 
 % Plot Non-linearized Simulation
-PlotAircraftSim(time,aircraft_state_array,control_input_array,fig,col)
+PlotAircraftSim(time,aircraft_state_array,control_input_array,fig,col, '25')
+
+
