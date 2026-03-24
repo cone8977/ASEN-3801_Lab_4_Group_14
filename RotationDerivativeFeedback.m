@@ -1,3 +1,8 @@
+% Contributors: Cody Newton
+% Course number: ASEN 3801
+% File name: QuadrotorEOM
+% Created: 3/24/26
+
 function [Fc, Gc] = RotationDerivativeFeedback(var, m, g)
 %{
 Create a function to calculate the control vectors Fc and Gc. The function takes as input the 12x1
@@ -23,8 +28,7 @@ GC_gain=0.004; %[Nm]
 Gc = var(10:12).*-GC_gain;
 
 %% Forces
-Z = m.*g;
-
+Z = -m.*g;  
 Fc=[0;0;Z];
 end 
 
