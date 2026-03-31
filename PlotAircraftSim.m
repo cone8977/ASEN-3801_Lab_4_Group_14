@@ -37,7 +37,7 @@ Mc = control_input_array(:,3); Nc = control_input_array(:,4);
 %% Plotting A/C State Vector Components (4 Figs w/Subplots)
 
 figure(fig(1)); % Figure 1 for A/C Inertial Positions
-sgtitle('Inertial Positon Components vs Time')
+sgtitle('Inertial Position Components vs Time')
 subplot(3,1,1); plot(time,x,col(1,:),LineWidth=1); grid on; hold on;
 ylabel('X-Position (m)'); xlim([0,max(time)]);
 subplot(3,1,2); plot(time,y,col(2,:),LineWidth=1); grid on; hold on;
