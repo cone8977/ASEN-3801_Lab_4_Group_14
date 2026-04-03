@@ -1,12 +1,37 @@
 clc; clear; close all;
 
+% Contributors : Saketh Guttapalli, Cody Newton, Victor Turpin , Liz Thompson
+% Course number: ASEN 3801
+% File name: Task2Q5_plots_.m
+% Created : 3/24/26
 
-%%%%%%
+
+
+
+%% Constants/Varibales 
+
+g = 9.81; % Acceleration due to gravity (m/s^2)
+m = 0.068; % QR mass (kg)
+I = [5.8*10^(-5),0,0;
+     0,7.2*10^(-5),0;
+     0,0,1.0*10^(-4)]; % QR intertia matrix 
+d = 0.06; % Radial distance to cg
+km = 0.0024; % Moment coefficient 
+nu = 1*10^(-3);
+mu = 2*10^(-6);
+
+t = [0, 10]; % Simulate for 0-10 seconds
+var=[0;0;0;         % Inertial Position [x,y,z]
+     0;0;0;         % Inertial Attitude
+     0;0;0;         % Body Velocities
+     0.1;0;0];      % Body Angular Acceleration
+motor_forces = [m*g/4; m*g/4; m*g/4; m*g/4]; % For hover
 
 
 
 
-%%%%%%
+
+
 % task 2 question 4
 
 function motor_forces = ComputeMotorForces (Fc, Gc, d, km)
@@ -37,9 +62,6 @@ end
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%
 
 % Task 2 Question 5
 
@@ -95,14 +117,6 @@ Control.N = Gc(3)
 
 
 
-% %% Control Struct
-% control=[-1 -1 -1 -1; -d./sqrt(2) -d./sqrt(2) d./sqrt(2) d./sqrt(2); d./sqrt(2) -d./sqrt(2) -d./sqrt(2) d./sqrt(2); km -km km -km].*motor_forces;
-% Control.Z=sum(control(1,:));
-% Control.L=sum(control(2,:));
-% Control.M=sum(control(3,:));
-% Control.N=sum(control(4,:));
-
-
 
 %% Aero Struct
 Force= -nu.*norm([State.u State.v State.w]).*[State.u; State.v; State.w];
@@ -151,16 +165,7 @@ P_dot = Omega_dot(1);
 Q_dot = Omega_dot(2);
 R_dot = Omega_dot(3);
 
-% %% Ground Collison
-% if(State.z>=0)        
-%     Z_dot=0; 
-%     U_dot=0;
-%     V_dot=0;
-%     W_dot=0;
-%     P_dot=0;
-%     Q_dot=0;
-%     R_dot=0;
-% end
+
 
 %% Compilation
 var_dot=[ X_dot; Y_dot; Z_dot; Phi_dot; Theta_dot; Psi_dot; U_dot; V_dot; W_dot; P_dot; Q_dot; R_dot];
@@ -168,16 +173,6 @@ var_dot=[ X_dot; Y_dot; Z_dot; Phi_dot; Theta_dot; Psi_dot; U_dot; V_dot; W_dot;
 
 end
 
-
-
-
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -296,16 +291,6 @@ Omega_dot = [ ((In.y-In.z)./In.x).*State.q.*State.r ;((In.z-In.x)./In.y).*State.
 % Allocate d/dt[Angular Rate]
 P_dot = Omega_dot(1); Q_dot = Omega_dot(2); R_dot = Omega_dot(3);
 
-% %% Ground Collison
-% if(State.z>=0)        
-%     Z_dot=0; 
-%     U_dot=0;
-%     V_dot=0;
-%     W_dot=0;
-%     P_dot=0;
-%     Q_dot=0;
-%     R_dot=0;
-% end
 
 %% Compile All Dotted States
 
@@ -318,26 +303,7 @@ end
 
 
 
-%% Constants/Varibales 
 
-g = 9.81; % Acceleration due to gravity (m/s^2)
-m = 0.068; % QR mass (kg)
-I = [5.8*10^(-5),0,0;
-     0,7.2*10^(-5),0;
-     0,0,1.0*10^(-4)]; % QR intertia matrix 
-d = 0.06; % Radial distance to cg
-km = 0.0024; % Moment coefficient 
-nu = 1*10^(-3);
-mu = 2*10^(-6);
-
-t = [0, 10]; % Simulate for 0-10 seconds
-
-var=[10; 15 ;-20;
-     0 ;0 ; 0; 
-     0 ; 0 ;0;
-     0.1 ;0 ;0];
-
-motor_forces = [m*g/4; m*g/4; m*g/4; m*g/4]; % For hover
 
 %% Non-Linearized with feedback
 
@@ -345,18 +311,29 @@ motor_forces = [m*g/4; m*g/4; m*g/4; m*g/4]; % For hover
 [times,aircraft_state_array] = ode45(@(t,var) QuadrotorEOMwithRateFeedback(t, var, g, m, I, nu, mu),t,var);
 
 
+for i = 1: length(times)
+    [Fc, Gc] = RotationDerivativeFeedback(aircraft_state_array(i,:), m, g)
+    control = [Fc(3); Gc(1); Gc(2); Gc(3)]
+
+control_input_array(i,1) = control(1);
+control_input_array(i,2) = control(2);
+control_input_array(i,3) = control(3);
+control_input_array(i,4) = control(4);
 
 
-[Fc, Gc] = RotationDerivativeFeedback(var, m, g)
-
-control = [Fc(3); Gc(1); Gc(2); Gc(3)]
 
 
-% Map Control Force Values over Time Interval
-control_input_array(:,1) = repmat(control(1),length(times),1);
-control_input_array(:,2) = repmat(control(2),length(times),1);
-control_input_array(:,3) = repmat(control(3),length(times),1);
-control_input_array(:,4) = repmat(control(4),length(times),1);
+Motor_Force = ComputeMotorForces (Fc, Gc, d, km)
+
+
+Motor_Force_Array(i,1) = Motor_Force(1);
+Motor_Force_Array(i,2) = Motor_Force(2);
+Motor_Force_Array(i,3) = Motor_Force(3);
+Motor_Force_Array(i,4) = Motor_Force(4);
+
+
+end
+
 
 fig = 1:6; % Set figure numbers
 col = ['r';'r';'r';'b';'b';'b';'k']; % Set colors for plotting
@@ -367,17 +344,6 @@ PlotAircraftSim(times,aircraft_state_array,control_input_array,fig,col, '25')
 
 
 
-
-
-%PLOTTING MOTOR FORCES
-Motor_Force = ComputeMotorForces (Fc, Gc, d, km)
-
-Motor_Force(3)
-
-Motor_Force_Array(:,1) = repmat(Motor_Force(1),length(times),1);
-Motor_Force_Array(:,2) = repmat(Motor_Force(2),length(times),1);
-Motor_Force_Array(:,3) = repmat(Motor_Force(3),length(times),1);
-Motor_Force_Array(:,4) = repmat(Motor_Force(4),length(times),1);
 
 %% Plotting Control Inputs
 
@@ -399,29 +365,10 @@ ylabel('F4'); xlim([0,max(times)]); xlabel('Time (s)');
 
 
 
-%% Constants/Varibales 
-
-g = 9.81; % Acceleration due to gravity (m/s^2)
-m = 0.068; % QR mass (kg)
-I = [5.8*10^(-5),0,0;
-     0,7.2*10^(-5),0;
-     0,0,1.0*10^(-4)]; % QR intertia matrix 
-d = 0.06; % Radial distance to cg
-km = 0.0024; % Moment coefficient 
-nu = 1*10^(-3);
-mu = 2*10^(-6);
-
-t = [0, 10]; % Simulate for 0-10 seconds
-var=[0;0;0;         % Inertial Position [x,y,z]
-     0;0;0;         % Inertial Attitude
-     0;0;0;         % Body Velocities
-     0.1;0;0];      % Body Angular Acceleration
-motor_forces = [m*g/4; m*g/4; m*g/4; m*g/4]; % For hover
-
 %% Non-Linearized without feedback
 
 % Run Simulation
-[time,aircraft_state_array] = ode45(@(t,var) QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_forces),t,var);
+[time,aircraft_state_array_] = ode45(@(t,var) QuadrotorEOM(t, var, g, m, I, d, km, nu, mu, motor_forces),t,var);
 
 % Calculate Control Forces
 control = [  -1,          -1,         -1,         -1      ; % Set Up Matrix 
@@ -440,7 +387,7 @@ col = ['m--';'m--';'m--';'c--';'c--';'c--';'k--']; % Set colors for plotting
 
 
 % Plot Non-linearized Simulation
-PlotAircraftSim(time,aircraft_state_array,control_input_array_,fig,col, '25')
+PlotAircraftSim(time,aircraft_state_array_,control_input_array_,fig,col, '25')
 
 
 
@@ -467,4 +414,12 @@ ylabel('F4'); xlim([0,max(time)]); xlabel('Time (s)');
 
 
 
-%final line means its saved properly
+
+
+exportgraphics(figure(7),'Motor_Forces_For_Roll_Rate_deviation_For_Both_Controlled_And_Uncontrolled.png')
+exportgraphics(figure(6),'3D_Trajectory_For_Roll_Rate_deviation_For_Both_Controlled_And_Uncontrolled.png')
+exportgraphics(figure(5),'Control_Inputs_For_Roll_Rate_deviation_For_Both_Controlled_And_Uncontrolled.png')
+exportgraphics(figure(4),'Body_Angular_Rates_Components_For_Roll_Rate_deviation_For_Both_Controlled_And_Uncontrolled.png')
+exportgraphics(figure(3),'Air_Relative_Velocity_Components_For_Roll_Rate_deviation_For_Both_Controlled_And_Uncontrolled.png')
+exportgraphics(figure(2),'Body_Angular_Components_For_Roll_Rate_deviation_For_Both_Controlled_And_Uncontrolled.png')
+exportgraphics(figure(1),'Inertial_Position_Components_For_Roll_Rate_deviation_For_Both_Controlled_And_Uncontrolled.png')
